@@ -91,17 +91,6 @@ class PluginLoomSpigot implements Plugin<Project> {
         def assemble = project.tasks.named("assemble").get()
         assemble.dependsOn(remapObfToSpigotTask)
 
-        def generatePluginMetadataTask = project.tasks.register("generatePluginMetadata", GenerateMetadataTask) { tsk ->
-            tsk.group = Constants.TASK_GROUP
-            tsk.description = "Generates the Plugin Metadata."
-
-            tsk.configuration = ext.metadata
-            tsk.sourceSet = ext.metadata.sourceSet
-        }
-
-        def processResources = project.tasks.named(JavaPlugin.PROCESS_RESOURCES_TASK_NAME).get()
-        processResources.dependsOn(generatePluginMetadataTask)
-
         def workDir = "${loomCache}/working/spigot"
 
         def runServerTask = project.tasks.register("runServer", RunServerTask) { tsk ->

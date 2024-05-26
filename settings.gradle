@@ -5,7 +5,9 @@ def loom_projects = [
 
         // Bukkit-Like
         "Spigot",
-        "Paper"
+        "Paper",
+        "BungeeCord",
+        "Nukkit"
 ]
 
 loom_projects.forEach { p ->
