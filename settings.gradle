@@ -7,7 +7,11 @@ def loom_projects = [
         "Spigot",
         "Paper",
         "BungeeCord",
-        "Nukkit"
+        "Nukkit",
+
+        // Other
+        "Velocity",
+        "Sponge"
 ]
 
 loom_projects.forEach { p ->

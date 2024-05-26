@@ -52,3 +52,7 @@ jobs:
             Common/build/libs/*.jar
             Spigot/build/libs/*.jar
             Paper/build/libs/*.jar
+            BungeeCord/build/libs/*.jar
+            Nukkit/build/libs/*.jar
+            Velocity/build/libs/*.jar
+            Sponge/build/libs/*.jar
