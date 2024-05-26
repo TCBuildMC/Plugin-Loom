@@ -1,0 +1,7 @@
+dependencies {
+    implementation project(":Common")
+    implementation project(":Bukkit")
+
+    implementation "commons-io:commons-io:2.15.1"
+    implementation "net.md-5:SpecialSource:1.11.4"
+}

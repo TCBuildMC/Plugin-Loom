@@ -1,0 +1,150 @@
+plugins {
+    id "java"
+    id "groovy"
+    id "maven-publish"
+    id "com.github.hierynomus.license" version "0.16.1" apply false
+}
+
+allprojects {
+    apply plugin: "java"
+    apply plugin: "groovy"
+
+    group = rootProject.maven_group
+    version = rootProject.release_version
+
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+
+    test {
+        useJUnitPlatform()
+
+        ignoreFailures true
+
+        testLogging {
+            exceptionFormat = "full"
+            events "passed", "skipped", "failed"
+        }
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        it.options.encoding = "UTF-8"
+        it.options.release.set(8)
+    }
+
+    tasks.withType(Javadoc).configureEach {
+        it.options.encoding = "UTF-8"
+        it.title = "PluginLoom"
+    }
+
+    tasks.withType(GroovyCompile).configureEach {
+        it.options.encoding = "UTF-8"
+    }
+
+    tasks.withType(Test).configureEach {
+        it.systemProperty "file.encoding", "UTF-8"
+    }
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+
+        withSourcesJar()
+        withJavadocJar()
+    }
+
+    jar {
+        zip64 true
+
+        manifest {
+            attributes "Implementation-Version": project.version
+        }
+
+        duplicatesStrategy DuplicatesStrategy.EXCLUDE
+    }
+
+    sourcesJar {
+        zip64 true
+
+        duplicatesStrategy DuplicatesStrategy.EXCLUDE
+    }
+
+    javadocJar {
+        zip64 true
+
+        duplicatesStrategy DuplicatesStrategy.EXCLUDE
+    }
+
+    compileJava.dependsOn clean
+}
+
+subprojects {
+    apply plugin: "maven-publish"
+    apply plugin: "com.github.hierynomus.license"
+
+    base.archivesName.set(project.artifact_name)
+
+    dependencies {
+        // Impl
+        implementation gradleApi()
+        implementation localGroovy()
+
+        // Test
+        testImplementation platform("org.junit:junit-bom:5.10.0")
+        testImplementation "org.junit.jupiter:junit-jupiter"
+
+        testImplementation gradleApi()
+        testImplementation localGroovy()
+    }
+
+    // https://github.com/hierynomus/license-gradle-plugin
+    license {
+        // use "gradle licenseFormat" to apply license headers
+        header = rootProject.file("HEADER")
+        include "**/*.groovy"
+        include "**/*.java"
+        skipExistingHeaders = true
+
+        headerDefinitions {
+            // ref: https://github.com/mathieucarbou/license-maven-plugin/blob/4c42374bb737378f5022a3a36849d5e23ac326ea/license-maven-plugin/src/main/java/com/mycila/maven/plugin/license/header/HeaderType.java#L48
+            // modification: add a newline at the end
+            SLASHSTAR_STYLE_NEWLINE {
+                firstLine = "/*"
+                beforeEachLine = " * "
+                endLine = " */" + System.lineSeparator()
+                afterEachLine = ""
+                skipLinePattern = null
+                firstLineDetectionPattern = "(\\s|\\t)*/\\*.*\$"
+                lastLineDetectionPattern = ".*\\*/(\\s|\\t)*\$"
+                allowBlankLines = false
+                isMultiline = true
+                padLines = false
+            }
+        }
+        mapping {
+            groovy = "SLASHSTAR_STYLE_NEWLINE"
+            java = "SLASHSTAR_STYLE_NEWLINE"
+        }
+        ext {
+            year = Calendar.getInstance().get(Calendar.YEAR).toString()
+        }
+    }
+    classes.dependsOn licenseFormatMain
+
+    publishing {
+        publications {
+            create("MavenJava", MavenPublication) {
+                from components.java
+                artifactId = project.artifact_name
+            }
+        }
+
+        repositories {
+            maven {
+                name = "Local"
+                url = "file:///D:/.m2/repository"
+            }
+        }
+    }
+}

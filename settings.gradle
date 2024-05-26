@@ -1,0 +1,15 @@
+def loom_projects = [
+        // Commons
+        "Common",
+        "Bukkit",
+
+        // Bukkit-Like
+        "Spigot",
+        "Paper"
+]
+
+loom_projects.forEach { p ->
+    include p
+}
+
+rootProject.name = 'PluginLoom'
