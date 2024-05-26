@@ -18,28 +18,20 @@
 package xyz.tcbuildmc.pluginloom.spigot
 
 import xyz.tcbuildmc.pluginloom.spigot.extension.NMSGenerator
-import xyz.tcbuildmc.pluginloom.spigot.task.buildtools.ReRunBuildToolsTask
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
-import org.gradle.api.plugins.JavaPlugin
-import xyz.tcbuildmc.pluginloom.bukkit.task.metadata.GenerateMetadataTask
 import xyz.tcbuildmc.pluginloom.common.BaseExtension
 import xyz.tcbuildmc.pluginloom.common.annotation.Todo
 import xyz.tcbuildmc.pluginloom.common.extension.RunServerExtension
-import xyz.tcbuildmc.pluginloom.common.task.runtime.RunServerTask
-import xyz.tcbuildmc.pluginloom.common.util.ConditionUtils
-import xyz.tcbuildmc.pluginloom.common.util.Constants
-import xyz.tcbuildmc.pluginloom.common.util.GradleUtils
 import xyz.tcbuildmc.pluginloom.spigot.extension.NMSRemapper
 import xyz.tcbuildmc.pluginloom.bukkit.extension.PluginMetadata
-import xyz.tcbuildmc.pluginloom.spigot.task.remap.RemapJarTask
 
 @SuppressWarnings("unused")
 class PluginLoomSpigotExtension {
     private final Project project
 
-    PluginLoomSpigotExtension(Project project, String loomCache) {
+    PluginLoomSpigotExtension(Project project) {
         this.project = project
     }
 
