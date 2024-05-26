@@ -17,7 +17,13 @@
 
 package xyz.tcbuildmc.pluginloom.spigot
 
+import org.gradle.api.plugins.JavaPlugin
+import xyz.tcbuildmc.pluginloom.bukkit.task.metadata.GenerateMetadataTask
+import xyz.tcbuildmc.pluginloom.common.task.runtime.RunServerTask
+import xyz.tcbuildmc.pluginloom.common.util.Constants
 import xyz.tcbuildmc.pluginloom.spigot.task.buildtools.DownloadBuildToolsTask
+import xyz.tcbuildmc.pluginloom.spigot.task.buildtools.ReRunBuildToolsTask
+import xyz.tcbuildmc.pluginloom.spigot.task.remap.RemapJarTask
 import xyz.tcbuildmc.pluginloom.spigot.task.runtime.CopyServerJarTask
 import xyz.tcbuildmc.pluginloom.spigot.task.runtime.RunBuildToolsForServerTask
 import org.gradle.api.Plugin
@@ -45,10 +51,81 @@ class PluginLoomSpigot implements Plugin<Project> {
 
         def ext = project.extensions.create("pluginloom", PluginLoomSpigotExtension, project, loomCache)
 
+        def buildToolsDir = "${loomCache}/buildTools"
+
+        def reRunBuildToolsTask = project.tasks.register("reRunBuildTools", ReRunBuildToolsTask) { tsk ->
+            tsk.group = Constants.TASK_GROUP
+            tsk.description = "Re-runs `BuildTools.jar`."
+
+            tsk.buildToolsFile = new File(buildToolsDir, "BuildTools.jar")
+            tsk.mcVersion = ConditionUtils.requiresNonNullOrEmpty(ext.base.mcVersion)
+            tsk.workDir = new File(buildToolsDir)
+        }
+
+        def remapMojmapToObfTask = project.tasks.register("remapMojmapToObf", RemapJarTask) { tsk ->
+            tsk.dependsOn(ext.nmsRemap.inputJarTask)
+            tsk.group = Constants.TASK_GROUP
+            tsk.description = "Remaps the built project Mojmap jar to obf mappings."
+
+            tsk.inputJar = ext.nmsRemap.inputJarTask.archiveFile.get().asFile
+
+            // ...
+            tsk.outputJar = ext.nmsRemap.inputJarTask.destinationDirectory.file(getRemappedJarName(ext, ext.nmsRemap.obfJarClassifier)).get().asFile
+
+            tsk.mappingsFile = new File("${loomCache}/repo/org/spigotmc/minecraft-server/${ConditionUtils.requiresNonNullOrEmpty(ext.nmsRemap.spigotApiVersion)}/minecraft-server-${ConditionUtils.requiresNonNullOrEmpty(ext.nmsRemap.spigotApiVersion)}-maps-mojang.txt")
+            tsk.reverse = true
+        }
+
+        def remapObfToSpigotTask = project.tasks.register("remapObfToSpigot", RemapJarTask) { tsk ->
+            tsk.group = Constants.TASK_GROUP
+            tsk.description = "Remaps the built project obf jar to Spigot mappings."
+            tsk.dependsOn(ext.nmsRemap.inputJarTask)
+            tsk.dependsOn(remapMojmapToObfTask.get())
+
+            tsk.inputJar = remapMojmapToObfTask.get().outputJar
+            tsk.outputJar = ext.nmsRemap.inputJarTask.destinationDirectory.file(getRemappedJarName(ext, ext.nmsRemap.spigotMappingsJarClassifier)).get().asFile
+
+            tsk.mappingsFile = new File("${loomCache}/repo/org/spigotmc/minecraft-server/${ConditionUtils.requiresNonNullOrEmpty(ext.nmsRemap.spigotApiVersion)}/minecraft-server-${ConditionUtils.requiresNonNullOrEmpty(ext.nmsRemap.spigotApiVersion)}-maps-spigot.csrg")
+        }
+
+        def assemble = project.tasks.named("assemble").get()
+        assemble.dependsOn(remapObfToSpigotTask)
+
+        def generatePluginMetadataTask = project.tasks.register("generatePluginMetadata", GenerateMetadataTask) { tsk ->
+            tsk.group = Constants.TASK_GROUP
+            tsk.description = "Generates the Plugin Metadata."
+
+            tsk.configuration = ext.metadata
+            tsk.sourceSet = ext.metadata.sourceSet
+        }
+
+        def processResources = project.tasks.named(JavaPlugin.PROCESS_RESOURCES_TASK_NAME).get()
+        processResources.dependsOn(generatePluginMetadataTask)
+
+        def workDir = "${loomCache}/working/spigot"
+
+        def runServerTask = project.tasks.register("runServer", RunServerTask) { tsk ->
+            tsk.group = Constants.TASK_GROUP
+            tsk.description = "Runs development environment test Spigot Sever."
+
+            tsk.serverJar = new File(workDir, "spigot-${ConditionUtils.requiresNonNullOrEmpty(ext.base.mcVersion)}.jar")
+            tsk.maxMemory = ConditionUtils.requiresNonNullOrEmpty(ext.runServer.maxMemory)
+        }
+
+        def runServerWithPluginTask = project.tasks.register("runServerWithPlugin", RunServerTask) { tsk ->
+            tsk.group = Constants.TASK_GROUP
+            tsk.description = "Runs development environment test Spigot Sever with generated Plugin(s)."
+            tsk.dependsOn(ext.runServer.inputJarTask)
+
+            tsk.serverJar = new File(workDir, "spigot-${ConditionUtils.requiresNonNullOrEmpty(ext.base.mcVersion)}.jar")
+            tsk.maxMemory = ConditionUtils.requiresNonNullOrEmpty(ext.runServer.maxMemory)
+            tsk.pluginJar = ext.runServer.inputJarTask.archiveFile.get().asFile
+        }
+
         project.afterEvaluate {
-//            prepareNMS(project, ext, loomCache)
-//
-//            prepareRunServer(project, ext, loomCache)
+            prepareNMS(project, ext, loomCache)
+
+            prepareRunServer(project, ext, loomCache)
         }
     }
 
@@ -91,7 +168,7 @@ class PluginLoomSpigot implements Plugin<Project> {
         repositories.mavenCentral()
     }
 
-    static void prepareNMS(final Project project, final PluginLoomSpigotExtension ext, final String loomCache) {
+    void prepareNMS(final Project project, final PluginLoomSpigotExtension ext, final String loomCache) {
         project.logger.lifecycle("> :executing 3 steps to prepare Spigot NMS")
 
         def buildToolsDir = "${loomCache}/buildTools"
@@ -123,7 +200,7 @@ class PluginLoomSpigot implements Plugin<Project> {
         project.logger.lifecycle("> :prepare Spigot NMS done")
     }
 
-    static void prepareRunServer(final Project project, final PluginLoomSpigotExtension ext, final String loomCache) {
+    void prepareRunServer(final Project project, final PluginLoomSpigotExtension ext, final String loomCache) {
         project.logger.lifecycle("> :executing 3 steps to prepare Spigot RunServer")
 
         def buildToolsDir = "${loomCache}/buildTools"
@@ -150,5 +227,19 @@ class PluginLoomSpigot implements Plugin<Project> {
         task3.run()
 
         project.logger.lifecycle("> :prepare Spigot RunServer done")
+    }
+
+    private String getRemappedJarName(final PluginLoomSpigotExtension ext, final String archivesClassifier) {
+        return new StringBuilder()
+                .append(ext.nmsRemap.inputJarTask.archiveBaseName.getOrElse(""))
+                .append("-")
+//                .append(ext.nmsRemap.inputJarTask.archiveAppendix.getOrElse(""))
+//                .append("-")
+                .append(ext.nmsRemap.inputJarTask.archiveVersion.getOrElse(""))
+                .append("-")
+                .append(ConditionUtils.requiresNonNullOrEmpty(archivesClassifier))
+                .append(".")
+                .append(ext.nmsRemap.inputJarTask.archiveExtension.getOrElse("jar"))
+                .toString()
     }
 }
