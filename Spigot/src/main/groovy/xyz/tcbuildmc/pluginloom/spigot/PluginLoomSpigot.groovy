@@ -49,7 +49,7 @@ class PluginLoomSpigot implements Plugin<Project> {
         PluginLoomCommon.apply(project)
         PluginLoomBukkit.apply(project)
 
-        def ext = project.extensions.create("pluginloom", PluginLoomSpigotExtension, project, loomCache)
+        def ext = project.extensions.create("pluginloom", PluginLoomSpigotExtension, project)
 
         def buildToolsDir = "${loomCache}/buildTools"
 
