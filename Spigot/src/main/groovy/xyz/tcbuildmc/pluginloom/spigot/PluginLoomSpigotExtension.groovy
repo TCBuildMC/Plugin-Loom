@@ -17,14 +17,12 @@
 
 package xyz.tcbuildmc.pluginloom.spigot
 
-import xyz.tcbuildmc.pluginloom.spigot.extension.NMSGenerator
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
 import xyz.tcbuildmc.pluginloom.common.BaseExtension
 import xyz.tcbuildmc.pluginloom.common.annotation.Todo
 import xyz.tcbuildmc.pluginloom.common.extension.RunServerExtension
-import xyz.tcbuildmc.pluginloom.spigot.extension.NMSRemapper
 import xyz.tcbuildmc.pluginloom.bukkit.extension.PluginMetadata
 
 @SuppressWarnings("unused")
@@ -36,8 +34,6 @@ class PluginLoomSpigotExtension {
     }
 
     BaseExtension base = new BaseExtension()
-    NMSGenerator nmsGen = new NMSGenerator(project)
-    NMSRemapper nmsRemap = new NMSRemapper(project)
     @Todo
     PluginMetadata metadata = new PluginMetadata(project)
     @Todo
@@ -45,14 +41,6 @@ class PluginLoomSpigotExtension {
 
     def base(Action<? super BaseExtension> action) {
         action.execute(base)
-    }
-
-    def nmsGen(Action<? super NMSGenerator> action) {
-        action.execute(nmsGen)
-    }
-
-    def nmsRemap(Action<? super NMSRemapper> action) {
-        action.execute(nmsRemap)
     }
 
     def metadata(Action<? super PluginMetadata> action) {

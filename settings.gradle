@@ -1,17 +1,21 @@
 def loom_projects = [
         // Commons
-        "Common",
-        "Bukkit",
+        ":Common",
+        ":Bukkit",
 
         // Bukkit-Like
-        "Spigot",
-        "Paper",
-        "BungeeCord",
-        "Nukkit",
+        ":Spigot",
+        ":Spigot:NMS",
+
+        ":Paper",
+        ":Paper:NMS",
+
+        ":BungeeCord",
+        ":Nukkit",
 
         // Other
-        "Velocity",
-        "Sponge"
+        ":Velocity",
+        ":Sponge"
 ]
 
 loom_projects.forEach { p ->

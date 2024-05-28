@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package xyz.tcbuildmc.pluginloom.spigot.task.nms
+package xyz.tcbuildmc.pluginloom.spigot.nms.task.nms
 
 import org.apache.commons.io.FileUtils
 import org.gradle.api.tasks.Input

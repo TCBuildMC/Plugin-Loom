@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package xyz.tcbuildmc.pluginloom.spigot.task.remap
+package xyz.tcbuildmc.pluginloom.spigot.nms.task.remap
 
 import net.md_5.specialsource.AccessMap
 import net.md_5.specialsource.Jar
