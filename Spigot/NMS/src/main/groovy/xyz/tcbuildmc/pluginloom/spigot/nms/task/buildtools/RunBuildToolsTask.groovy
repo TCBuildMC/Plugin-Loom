@@ -15,16 +15,16 @@
  * limitations under the License.
  */
 
-package xyz.tcbuildmc.pluginloom.spigot.task.runtime
+package xyz.tcbuildmc.pluginloom.spigot.nms.task.buildtools
 
 import org.gradle.api.Project
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 
-class RunBuildToolsForServerTask implements Runnable {
+class RunBuildToolsTask implements Runnable {
     private final Project project
 
-    RunBuildToolsForServerTask(Project project) {
+    RunBuildToolsTask(Project project) {
         this.project = project
     }
 
@@ -36,7 +36,7 @@ class RunBuildToolsForServerTask implements Runnable {
     private File workDir
 
     @OutputFile
-    private File workSpigotJar
+    private File mavenDir
 
     File getBuildToolsFile() {
         return buildToolsFile
@@ -62,18 +62,17 @@ class RunBuildToolsForServerTask implements Runnable {
         this.workDir = workDir
     }
 
-    File getWorkSpigotJar() {
-        return workSpigotJar
+    File getMavenDir() {
+        return mavenDir
     }
 
-    void setWorkSpigotJar(File workSpigotJar) {
-        this.workSpigotJar = workSpigotJar
+    void setMavenDir(File mavenDir) {
+        this.mavenDir = mavenDir
     }
 
     @Override
     void run() {
-        workSpigotJar = new File(workDir, "spigot-${mcVersion}.jar")
-        if (workSpigotJar.exists()) {
+        if (mavenDir.exists()) {
             return
         }
 

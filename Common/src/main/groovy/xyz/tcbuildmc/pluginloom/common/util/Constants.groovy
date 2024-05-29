@@ -22,6 +22,8 @@ class Constants {
     static final String arch = System.getProperty("os.arch").endsWith("64") ? "64" : "32"
 
     static final String buildToolsURL = "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar"
+    static final String getBukkitURL = "https://download.getbukkit.org/spigot" // >= 1.17
+    static final String getBukkitLegacyURL = "https://cdn.getbukkit.org/spigot" // -SNAPSHOT-latest.jar (<= 1.11) < 1.17
 
     static final String TASK_GROUP = "PluginLoom"
 }

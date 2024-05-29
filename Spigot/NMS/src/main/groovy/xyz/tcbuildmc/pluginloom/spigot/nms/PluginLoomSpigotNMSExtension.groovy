@@ -38,6 +38,4 @@ class PluginLoomSpigotNMSExtension {
     String obfJarClassifier = "remapped-obf"
 
     String spigotMappingsJarClassifier = "remapped-spigot"
-
-    String spigotApiVersion = ""
 }

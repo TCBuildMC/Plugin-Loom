@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package xyz.tcbuildmc.pluginloom.spigot.task.buildtools
+package xyz.tcbuildmc.pluginloom.spigot.nms.task.buildtools
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input

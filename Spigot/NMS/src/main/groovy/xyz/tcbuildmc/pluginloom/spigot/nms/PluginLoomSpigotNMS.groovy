@@ -24,10 +24,11 @@ import xyz.tcbuildmc.pluginloom.common.util.Constants
 import xyz.tcbuildmc.pluginloom.common.util.NIOUtils
 import xyz.tcbuildmc.pluginloom.spigot.PluginLoomSpigot
 import xyz.tcbuildmc.pluginloom.spigot.PluginLoomSpigotExtension
-import xyz.tcbuildmc.pluginloom.spigot.nms.task.buildtools.RunBuildToolsForNMSTask
+import xyz.tcbuildmc.pluginloom.spigot.nms.task.buildtools.RunBuildToolsTask
 import xyz.tcbuildmc.pluginloom.spigot.nms.task.nms.CopyArtifactsTask
 import xyz.tcbuildmc.pluginloom.spigot.nms.task.remap.RemapJarTask
-import xyz.tcbuildmc.pluginloom.spigot.task.buildtools.DownloadBuildToolsTask
+import xyz.tcbuildmc.pluginloom.spigot.nms.task.buildtools.DownloadBuildToolsTask
+import xyz.tcbuildmc.pluginloom.spigot.nms.task.buildtools.ReRunBuildToolsTask
 
 class PluginLoomSpigotNMS implements Plugin<Project> {
     @Override
@@ -51,7 +52,7 @@ class PluginLoomSpigotNMS implements Plugin<Project> {
             // ...
             tsk.outputJar = ext.inputJarTask.destinationDirectory.file(getRemappedJarName(ext, ext.obfJarClassifier)).get().asFile
 
-            tsk.mappingsFile = new File("${loomCache}/repo/org/spigotmc/minecraft-server/${ConditionUtils.requiresNonNullOrEmpty(ext.spigotApiVersion)}/minecraft-server-${ConditionUtils.requiresNonNullOrEmpty(ext.spigotApiVersion)}-maps-mojang.txt")
+            tsk.mappingsFile = new File("${loomCache}/repo/org/spigotmc/minecraft-server/${ConditionUtils.requiresNonNullOrEmpty(baseExt.base.spigotApiVersion)}/minecraft-server-${ConditionUtils.requiresNonNullOrEmpty(baseExt.base.spigotApiVersion)}-maps-mojang.txt")
             tsk.reverse = true
         }
 
@@ -64,11 +65,22 @@ class PluginLoomSpigotNMS implements Plugin<Project> {
             tsk.inputJar = remapMojmapToObfTask.get().outputJar
             tsk.outputJar = ext.inputJarTask.destinationDirectory.file(getRemappedJarName(ext, ext.spigotMappingsJarClassifier)).get().asFile
 
-            tsk.mappingsFile = new File("${loomCache}/repo/org/spigotmc/minecraft-server/${ConditionUtils.requiresNonNullOrEmpty(ext.spigotApiVersion)}/minecraft-server-${ConditionUtils.requiresNonNullOrEmpty(ext.spigotApiVersion)}-maps-spigot.csrg")
+            tsk.mappingsFile = new File("${loomCache}/repo/org/spigotmc/minecraft-server/${ConditionUtils.requiresNonNullOrEmpty(baseExt.base.spigotApiVersion)}/minecraft-server-${ConditionUtils.requiresNonNullOrEmpty(baseExt.base.spigotApiVersion)}-maps-spigot.csrg")
         }
 
         def assemble = project.tasks.named("assemble").get()
         assemble.dependsOn(remapObfToSpigotTask)
+
+        def buildToolsDir = "${loomCache}/buildTools"
+
+        def reRunBuildToolsTask = project.tasks.register("reRunBuildTools", ReRunBuildToolsTask) { tsk ->
+            tsk.group = Constants.TASK_GROUP
+            tsk.description = "Re-runs `BuildTools.jar`."
+
+            tsk.buildToolsFile = new File(buildToolsDir, "BuildTools.jar")
+            tsk.mcVersion = ConditionUtils.requiresNonNullOrEmpty(baseExt.base.mcVersion)
+            tsk.workDir = new File(buildToolsDir)
+        }
 
         project.afterEvaluate {
             prepareNMS(project, baseExt, loomCache)
@@ -89,7 +101,7 @@ class PluginLoomSpigotNMS implements Plugin<Project> {
         def mavenLocalDir = "${NIOUtils.getMavenLocalDir()}/repository/org/spigotmc"
 
         project.logger.lifecycle("> :step 2 Run BuildTools")
-        def task2 = new RunBuildToolsForNMSTask(project)
+        def task2 = new RunBuildToolsTask(project)
         task2.workDir = new File(buildToolsDir)
         task2.mcVersion = ConditionUtils.requiresNonNullOrEmpty(ext.base.mcVersion)
         task2.buildToolsFile = new File(buildToolsDir, "BuildTools.jar")

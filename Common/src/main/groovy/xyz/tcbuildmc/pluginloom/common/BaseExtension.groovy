@@ -31,5 +31,7 @@ class BaseExtension {
     }
 
     String mcVersion = ""
+    String spigotApiVersion = ""
+    String buildId = ""
     int timeout = 30
 }

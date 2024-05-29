@@ -19,16 +19,13 @@ package xyz.tcbuildmc.pluginloom.spigot
 
 import xyz.tcbuildmc.pluginloom.common.task.runtime.RunServerTask
 import xyz.tcbuildmc.pluginloom.common.util.Constants
-import xyz.tcbuildmc.pluginloom.spigot.task.buildtools.DownloadBuildToolsTask
-import xyz.tcbuildmc.pluginloom.spigot.task.buildtools.ReRunBuildToolsTask
-import xyz.tcbuildmc.pluginloom.spigot.task.runtime.CopyServerJarTask
-import xyz.tcbuildmc.pluginloom.spigot.task.runtime.RunBuildToolsForServerTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import xyz.tcbuildmc.pluginloom.bukkit.PluginLoomBukkit
 import xyz.tcbuildmc.pluginloom.common.PluginLoomCommon
 import xyz.tcbuildmc.pluginloom.common.util.ConditionUtils
+import xyz.tcbuildmc.pluginloom.spigot.task.runtime.DownloadServerJarTask
 
 class PluginLoomSpigot implements Plugin<Project> {
     static final String VERSION = ConditionUtils.requiresNonNullOrElse(PluginLoomSpigot.class.getPackage().getImplementationVersion(), "0.0-unknown")
@@ -44,17 +41,6 @@ class PluginLoomSpigot implements Plugin<Project> {
         PluginLoomBukkit.apply(project)
 
         def ext = project.extensions.create("pluginloom", PluginLoomSpigotExtension, project)
-
-        def buildToolsDir = "${loomCache}/buildTools"
-
-        def reRunBuildToolsTask = project.tasks.register("reRunBuildTools", ReRunBuildToolsTask) { tsk ->
-            tsk.group = Constants.TASK_GROUP
-            tsk.description = "Re-runs `BuildTools.jar`."
-
-            tsk.buildToolsFile = new File(buildToolsDir, "BuildTools.jar")
-            tsk.mcVersion = ConditionUtils.requiresNonNullOrEmpty(ext.base.mcVersion)
-            tsk.workDir = new File(buildToolsDir)
-        }
 
         def workDir = "${loomCache}/working/spigot"
 
@@ -125,30 +111,14 @@ class PluginLoomSpigot implements Plugin<Project> {
     }
 
     void prepareRunServer(final Project project, final PluginLoomSpigotExtension ext, final String loomCache) {
-        project.logger.lifecycle("> :executing 3 steps to prepare Spigot RunServer")
-
-        def buildToolsDir = "${loomCache}/buildTools"
-
-        project.logger.lifecycle("> :step 1 Download BuildTools")
-        def task1 = new DownloadBuildToolsTask(project)
-        task1.buildToolsDir = buildToolsDir
-        task1.timeout = ext.base.timeout
-        task1.run()
-
-        project.logger.lifecycle("> :step 2 Run BuildTools")
-        def task2 = new RunBuildToolsForServerTask(project)
-        task2.workDir = new File(buildToolsDir)
-        task2.mcVersion = ConditionUtils.requiresNonNullOrEmpty(ext.base.mcVersion)
-        task2.buildToolsFile = new File(buildToolsDir, "BuildTools.jar")
-        task2.run()
+        project.logger.lifecycle("> :executing 1 steps to prepare Spigot RunServer")
 
         def workDir = "${loomCache}/working/spigot"
 
-        project.logger.lifecycle("> :step 3 Copy Spigot Server jar")
-        def task3 = new CopyServerJarTask()
-        task3.workSpigotJar = task2.workSpigotJar
-        task3.workDir = workDir
-        task3.run()
+        project.logger.lifecycle("> :step 1 Download Spigot Server jar")
+        def task1 = new DownloadServerJarTask(ext)
+        task1.workingDir = workDir
+        task1.run()
 
         project.logger.lifecycle("> :prepare Spigot RunServer done")
     }
