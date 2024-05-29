@@ -60,37 +60,39 @@ class DownloadServerJarTask implements Runnable {
             return
         }
 
-        try {
-            FileUtils.copyURLToFile(new URI("${Constants.getBukkitURL}/spigot-${ConditionUtils.requiresNonNullOrEmpty(ext.base.mcVersion)}.jar").toURL(),
-                    spigotServerJar,
-                    ext.base.timeout,
-                    ext.base.timeout)
+//        try {
+//
+//
+//        } catch (Exception e1) {
+//            try {
+//                FileUtils.copyURLToFile(new URI("${Constants.getBukkitLegacyURL}/spigot-${ConditionUtils.requiresNonNullOrEmpty(ext.base.mcVersion)}.jar").toURL(),
+//                        spigotServerJar,
+//                        ext.base.timeout,
+//                        ext.base.timeout)
+//
+//            } catch (Exception e2) {
+//                try {
+//                    FileUtils.copyURLToFile(new URI("${Constants.getBukkitLegacyURL}/spigot-${ConditionUtils.requiresNonNullOrEmpty(ext.base.spigotApiVersion)}-latest.jar").toURL(),
+//                            spigotServerJar,
+//                            ext.base.timeout,
+//                            ext.base.timeout)
+//
+//                } catch (Exception e3) {
+//                    try {
+//                        FileUtils.copyURLToFile(new URI("${Constants.getBukkitLegacyURL}/spigot-${ConditionUtils.requiresNonNullOrEmpty(ext.base.spigotApiVersion)}-b${ConditionUtils.requiresNonNullOrEmpty(ext.base.buildId)}.jar").toURL(),
+//                                spigotServerJar,
+//                                ext.base.timeout,
+//                                ext.base.timeout)
+//                    } catch (Exception e4) {
+//                        throw new IllegalArgumentException("Failed to download.")
+//                    }
+//                }
+//            }
+//        }
 
-        } catch (Exception e1) {
-            try {
-                FileUtils.copyURLToFile(new URI("${Constants.getBukkitLegacyURL}/spigot-${ConditionUtils.requiresNonNullOrEmpty(ext.base.mcVersion)}.jar").toURL(),
-                        spigotServerJar,
-                        ext.base.timeout,
-                        ext.base.timeout)
-
-            } catch (Exception e2) {
-                try {
-                    FileUtils.copyURLToFile(new URI("${Constants.getBukkitLegacyURL}/spigot-${ConditionUtils.requiresNonNullOrEmpty(ext.base.spigotApiVersion)}-latest.jar").toURL(),
-                            spigotServerJar,
-                            ext.base.timeout,
-                            ext.base.timeout)
-
-                } catch (Exception e3) {
-                    try {
-                        FileUtils.copyURLToFile(new URI("${Constants.getBukkitLegacyURL}/spigot-${ConditionUtils.requiresNonNullOrEmpty(ext.base.spigotApiVersion)}-b${ConditionUtils.requiresNonNullOrEmpty(ext.base.buildId)}.jar").toURL(),
-                                spigotServerJar,
-                                ext.base.timeout,
-                                ext.base.timeout)
-                    } catch (Exception e4) {
-                        throw new IllegalArgumentException("Failed to download.")
-                    }
-                }
-            }
-        }
+        FileUtils.copyURLToFile(new URI("${Constants.getBukkitURL}/spigot-${ConditionUtils.requiresNonNullOrEmpty(ext.base.mcVersion)}.jar").toURL(),
+                spigotServerJar,
+                ext.base.timeout,
+                ext.base.timeout)
     }
 }
