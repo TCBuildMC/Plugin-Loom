@@ -76,6 +76,10 @@ class PluginLoomSpigot implements Plugin<Project> {
             tsk.pluginJar = ext.runServer.inputJarTask.archiveFile.get().asFile
         }
 
+        if (project.plugins.hasPlugin("xyz.tcbuildmc.pluginloom.spigot.nms")) {
+            runServerWithPluginTask.get().dependsOn(project.tasks.named("remapObfToSpigot"))
+        }
+
         project.afterEvaluate {
             prepareRunServer(project, ext, loomCache)
         }
