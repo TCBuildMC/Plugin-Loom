@@ -30,39 +30,44 @@ class GenerateMetadataTask extends DefaultTask {
     PluginMetadata configuration
 
     @Input
-    @Optional
     String sourceSet
+
+    @Input
+    @Optional
+    Boolean enable = true
 
     @TaskAction
     void parse() {
-        if (configuration.check()) {
-            throw new IllegalArgumentException()
+        if (enable) {
+            if (configuration.check()) {
+                throw new IllegalArgumentException()
+            }
+
+            def pluginYML = new File("${project.projectDir.canonicalPath}/src/${sourceSet}/resources", "plugin.yml")
+            def metadata = configuration.metadata
+
+            List<String> libraries = new ArrayList<>()
+
+            project.configurations.getByName("bukkitLibrary").dependencies.forEach { d -> // allDependencies
+                libraries.add(d.group + ":" + d.name + ":" + d.version)
+            }
+
+            if (!libraries.isEmpty()) {
+                metadata.put("libraries", libraries)
+            }
+
+            if (!pluginYML.getParentFile().exists()) {
+                pluginYML.getParentFile().mkdirs()
+            }
+
+            if (!pluginYML.exists()) {
+                pluginYML.createNewFile()
+            }
+
+            def mapper = YAMLMapper.builder()
+                    .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
+                    .build()
+            mapper.writer().withDefaultPrettyPrinter().writeValue(pluginYML, metadata)
         }
-
-        def pluginYML = new File("${project.projectDir.canonicalPath}/src/${sourceSet}/resources", "plugin.yml")
-        def metadata = configuration.metadata
-
-        List<String> libraries = new ArrayList<>()
-
-        project.configurations.getByName("bukkitLibrary").dependencies.forEach { d -> // allDependencies
-            libraries.add(d.group + ":" + d.name + ":" + d.version)
-        }
-
-        if (!libraries.isEmpty()) {
-            metadata.put("libraries", libraries)
-        }
-
-        if (!pluginYML.getParentFile().exists()) {
-            pluginYML.getParentFile().mkdirs()
-        }
-
-        if (!pluginYML.exists()) {
-            pluginYML.createNewFile()
-        }
-
-        def mapper = YAMLMapper.builder()
-                .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
-                .build()
-        mapper.writer().withDefaultPrettyPrinter().writeValue(pluginYML, metadata)
     }
 }

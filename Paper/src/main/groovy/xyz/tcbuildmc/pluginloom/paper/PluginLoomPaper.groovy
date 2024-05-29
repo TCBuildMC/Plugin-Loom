@@ -34,10 +34,10 @@ class PluginLoomPaper implements Plugin<Project> {
 
         project.logger.lifecycle("Plugin Loom: ${VERSION} on Paper platform")
 
-        PluginLoomCommon.apply(project)
-        PluginLoomBukkit.apply(project)
-
         def ext = project.extensions.create("pluginloom", PluginLoomPaperExtension, project)
+
+        PluginLoomCommon.apply(project)
+        PluginLoomBukkit.apply(project, ext.metadata)
     }
 
     void declareRepositories(final RepositoryHandler repositories, final File loomRepository) {

@@ -19,18 +19,19 @@ package xyz.tcbuildmc.pluginloom.bukkit
 
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
+import xyz.tcbuildmc.pluginloom.bukkit.extension.PluginMetadata
 import xyz.tcbuildmc.pluginloom.bukkit.task.metadata.GenerateMetadataTask
 import xyz.tcbuildmc.pluginloom.common.util.Constants
 
 class PluginLoomBukkit {
-    static void apply(Project project) {
+    static void apply(Project project, PluginMetadata ext) {
         def bukkitLibrary = project.configurations.create("bukkitLibrary")
 
         def generatePluginMetadataTask = project.tasks.register("generatePluginMetadata", GenerateMetadataTask) { tsk ->
             tsk.group = Constants.TASK_GROUP
             tsk.description = "Generates the Plugin Metadata."
 
-            tsk.configuration = ext.metadata
+            tsk.configuration = ext
             tsk.sourceSet = ext.metadata.sourceSet
         }
 

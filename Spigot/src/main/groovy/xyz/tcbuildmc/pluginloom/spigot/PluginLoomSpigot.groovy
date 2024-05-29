@@ -37,10 +37,10 @@ class PluginLoomSpigot implements Plugin<Project> {
 
         project.logger.lifecycle("Plugin Loom: ${VERSION} on Spigot platform")
 
-        PluginLoomCommon.apply(project)
-        PluginLoomBukkit.apply(project)
-
         def ext = project.extensions.create("pluginloom", PluginLoomSpigotExtension, project)
+
+        PluginLoomCommon.apply(project)
+        PluginLoomBukkit.apply(project, ext.metadata)
 
         def workDir = "${loomCache}/working/spigot"
 
