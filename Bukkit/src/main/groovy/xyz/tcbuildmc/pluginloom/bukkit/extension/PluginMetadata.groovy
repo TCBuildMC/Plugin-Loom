@@ -48,6 +48,96 @@ class PluginMetadata {
         metadata.put("main", mainClass)
     }
 
+    def supportFolia(boolean b) {
+        metadata.put("folia-supported", b)
+    }
+
+    def description(String desc) {
+        metadata.put("description", desc)
+    }
+
+    def author(String author) {
+        metadata.put("author", author)
+    }
+
+    def authors(List<String> author) {
+        metadata.put("authors", author)
+    }
+
+    def authors(String... author) {
+        authors(author.collect().collect())
+    }
+
+    def contributors(List<String> contributor) {
+        metadata.put("contributors", contributor)
+    }
+
+    def contributors(String... contributor) {
+        contributors(contributor.collect().collect())
+    }
+
+    def website(String url) {
+        metadata.put("website", url)
+    }
+
+    def website(URI url) {
+        metadata.put("website", url.toURL().toString())
+    }
+
+    def website(URL url) {
+        metadata.put("website", url.toString())
+    }
+
+    def apiVersion(String ver) {
+        metadata.put("api-version", ver)
+    }
+
+    def load(LoadOrder order) {
+        metadata.put("load", order.toString())
+    }
+
+    def prefix(String id) {
+        metadata.put("prefix", id)
+    }
+
+    def defaultPermission(BasePermission permission) {
+        metadata.put("default-permission", permission.toString())
+    }
+
+    def depend(List<String> pluginIds) {
+        metadata.put("depend", pluginIds)
+    }
+
+    def depend(String... pluginIds) {
+        depend(pluginIds.collect().collect())
+    }
+
+    def softDepend(List<String> pluginIds) {
+        metadata.put("softdepend", pluginIds)
+    }
+
+    def softDepend(String... pluginIds) {
+        softDepend(pluginIds.collect().collect())
+    }
+
+    def loadBefore(List<String> pluginIds) {
+        metadata.put("loadbefore", pluginIds)
+    }
+
+    def loadBefore(String... pluginIds) {
+        loadBefore(pluginIds.collect().collect())
+    }
+
+    def provided(List<String> pluginIds) {
+        metadata.put("provides", pluginIds)
+    }
+
+    def provided(String... pluginIds) {
+        provided(pluginIds.collect().collect())
+    }
+
+    // TODO Add permissions and commands
+
     @LoomTest
     void test() {
         BaseExtension.submitTest { b ->
